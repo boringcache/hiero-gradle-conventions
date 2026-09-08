@@ -1,1 +1,18 @@
 workspace = "boringcache/hiero-gradle-conventions"
+
+[entries.gradle-wrapper]
+tag = "hiero-gradle-wrapper"
+path = "~/.gradle/wrapper"
+
+[entries.gradle-modules]
+tag = "hiero-gradle-modules"
+path = "~/.gradle/caches/modules-2"
+exclude = ["*.lock", "gc.properties"]
+
+[profiles.dependencies]
+entries = ["gradle-wrapper", "gradle-modules"]
+
+[adapters.gradle]
+tag = "hiero-gradle"
+command = ["./gradlew", "assemble", "check"]
+metadata-hints = ["project=hiero-gradle-conventions", "tool=gradle"]

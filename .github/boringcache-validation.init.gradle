@@ -1,0 +1,10 @@
+// SPDX-License-Identifier: Apache-2.0
+// Measure remote reuse without a local task cache or the upstream cache service.
+gradle.settingsEvaluated { settings ->
+    settings.buildCache {
+        local { enabled = false }
+        if (!System.getenv('BORINGCACHE_GRADLE_CACHE_URL')) {
+            remote { enabled = false }
+        }
+    }
+}

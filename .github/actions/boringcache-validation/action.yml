@@ -1,0 +1,75 @@
+name: Validate Hiero Gradle caching
+description: Compile the convention plugins and run their checks on a fresh runner.
+inputs:
+  cache-case:
+    description: uncached, gradle, dependencies, or combined
+    required: true
+  phase:
+    description: cold, warm, or commit
+    required: true
+  cli-version:
+    description: Optional exact BoringCache CLI release or prerelease tag
+    default: ''
+runs:
+  using: composite
+  steps:
+    - name: Record source and workflow identity
+      shell: bash
+      run: |
+        mkdir -p validation-results
+        cp .github/boringcache-source validation-results/source.txt
+        git rev-parse HEAD > validation-results/validation-commit.txt
+    - name: Install Java
+      uses: actions/setup-java@1bcf9fb12cf4aa7d266a90ae39939e61372fe520 # v5.4.0
+      with:
+        distribution: temurin
+        java-version: 17.0.16
+    - name: Restore dependency archives
+      if: inputs.cache-case == 'dependencies' || inputs.cache-case == 'combined'
+      id: dependencies
+      uses: boringcache/one@e4ead12dabc993eba201c402a82e396166dade03 # v1.20.4
+      with:
+        cli-version: ${{ inputs.cli-version }}
+        mode: archive
+        cache-profiles: dependencies
+        trust-policy: ${{ inputs.phase == 'warm' && 'restore' || 'publish' }}
+        fail-on-cache-error: true
+        fail-on-cache-miss: ${{ inputs.phase == 'warm' }}
+        diagnostics: summary
+    - name: Configure the native Gradle build cache
+      if: inputs.cache-case == 'gradle' || inputs.cache-case == 'combined'
+      id: remote
+      uses: boringcache/one@e4ead12dabc993eba201c402a82e396166dade03 # v1.20.4
+      with:
+        cli-version: ${{ inputs.cli-version }}
+        mode: gradle
+        trust-policy: ${{ inputs.phase == 'warm' && 'restore' || 'publish' }}
+        fail-on-cache-error: true
+        fail-on-cache-miss: ${{ inputs.phase == 'warm' }}
+        diagnostics: summary
+    - name: Record Java and isolate the cache comparison
+      shell: bash
+      run: |
+        java -version 2> validation-results/java-version.txt
+        mkdir -p "$HOME/.gradle/init.d"
+        cp .github/boringcache-validation.init.gradle "$HOME/.gradle/init.d/validation.init.gradle"
+    - name: Compile plugins and run checks
+      shell: bash
+      run: |
+        set -o pipefail
+        /usr/bin/time -v -o validation-results/build-time.txt \
+          ./gradlew --no-daemon --console=plain --stacktrace --info assemble check \
+          2>&1 | tee validation-results/build.log
+    - name: Retain source, timing, test reports and product evidence
+      if: always()
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.cache-case }}-${{ inputs.phase }}-${{ github.run_id }}-${{ github.run_attempt }}
+        include-hidden-files: true
+        path: |
+          validation-results/
+          build/test-results/
+          build/reports/tests/
+          ${{ steps.remote.outputs.evidence-path }}
+          ${{ steps.dependencies.outputs.evidence-path }}
+        if-no-files-found: error

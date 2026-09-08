@@ -1,0 +1,66 @@
+name: BoringCache Gradle validation
+run-name: Hiero Gradle ${{ inputs.phase || 'cold' }} at ${{ github.sha }}
+on:
+  workflow_dispatch:
+    inputs:
+      phase:
+        description: Seed separate caches, measure combined reuse, or validate a source change
+        type: choice
+        options: [cold, warm-combined, commit]
+        default: cold
+      cli_version:
+        description: Optional exact BoringCache CLI release or prerelease tag
+        type: string
+        required: false
+        default: ''
+permissions:
+  contents: read
+concurrency:
+  group: hiero-gradle-validation
+  cancel-in-progress: false
+jobs:
+  build:
+    name: ${{ matrix.cache-case == 'uncached' && 'Uncached' || 'BoringCache' }} ${{ matrix.cache-case }} ${{ inputs.phase }}
+    if: github.repository == 'boringcache/hiero-gradle-conventions' && github.ref == 'refs/heads/boringcache-validation'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        cache-case: ${{ fromJSON(inputs.phase == 'cold' && '["uncached","gradle","dependencies"]' || '["combined"]') }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: ./.github/actions/boringcache-validation
+        with:
+          cache-case: ${{ matrix.cache-case }}
+          phase: ${{ inputs.phase == 'warm-combined' && 'warm' || inputs.phase }}
+          cli-version: ${{ inputs.cli_version }}
+  warm:
+    name: BoringCache ${{ matrix.cache-case }} warm
+    needs: build
+    if: inputs.phase == 'cold'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        cache-case: [gradle, dependencies, combined]
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: ./.github/actions/boringcache-validation
+        with:
+          cache-case: ${{ matrix.cache-case }}
+          phase: warm
+          cli-version: ${{ inputs.cli_version }}
