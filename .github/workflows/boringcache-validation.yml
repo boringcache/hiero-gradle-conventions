@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 name: BoringCache Gradle validation
 run-name: Hiero Gradle ${{ inputs.phase || 'cold' }} at ${{ github.sha }}
 on:
@@ -12,7 +13,7 @@ on:
         description: Optional exact BoringCache CLI release or prerelease tag
         type: string
         required: false
-        default: ''
+        default: ""
 permissions:
   contents: read
 concurrency:
