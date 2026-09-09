@@ -11,8 +11,8 @@ BoringCache for these jobs, with trusted cold/source-change writes and
 read-only warm jobs. No local task-cache directory is restored. The upstream
 source and its normal CI configuration remain intact.
 
-The workflow pins One v1.30.0 at
-`a610ec5a564efd9b360925056dbade04deb5def6`, with its default CLI v1.30.0.
+The workflow pins One v1.30.1 at
+`404b744a2053da4cf963f13f615f7fafe94f3cf7`, with its default CLI v1.30.1.
 Release checks run through the
 [validation workflow](https://github.com/boringcache/hiero-gradle-conventions/actions/workflows/boringcache-validation.yml).
 
