@@ -13,7 +13,8 @@ source and its normal CI configuration remain intact.
 
 The workflow pins One v1.30.0 at
 `a610ec5a564efd9b360925056dbade04deb5def6`, with its default CLI v1.30.0.
-The restore check for this release is pending.
+Release checks run through the
+[validation workflow](https://github.com/boringcache/hiero-gradle-conventions/actions/workflows/boringcache-validation.yml).
 
 The earlier One v1.21.0 at `90111526eb218a7f1e119ac2b29f765bd4d82734`
 used CLI v1.21.0. Its
@@ -30,14 +31,14 @@ The original comparison used One v1.20.4 and CLI v1.20.5. All six jobs in the
 [cold/warm comparison](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34253302124)
 passed:
 
-| Case | Command | Full job | Test behavior |
-| --- | ---: | ---: | --- |
-| Uncached | 453.80 s | 7m50s | 96 passed, one skipped |
-| Native Gradle cold | 548.36 s | 9m24s | 96 passed, one skipped |
-| Dependencies cold | 571.43 s | 10m02s | 96 passed, one skipped |
-| Native Gradle warm | 95.63 s | 1m57s | Test task restored |
-| Combined warm | 59.81 s | 1m36s | Test task restored |
-| Dependencies warm | 520.18 s | 8m58s | 96 passed, one skipped |
+|        Case        |  Command | Full job |     Test behavior      |
+|--------------------|---------:|---------:|------------------------|
+| Uncached           | 453.80 s |    7m50s | 96 passed, one skipped |
+| Native Gradle cold | 548.36 s |    9m24s | 96 passed, one skipped |
+| Dependencies cold  | 571.43 s |   10m02s | 96 passed, one skipped |
+| Native Gradle warm |  95.63 s |    1m57s | Test task restored     |
+| Combined warm      |  59.81 s |    1m36s | Test task restored     |
+| Dependencies warm  | 520.18 s |    8m58s | 96 passed, one skipped |
 
 Combined warm reuse shortened this job sample from 7m50s to 1m36s. Dependency
 archives alone did not outperform the uncached sample. Restored test reports
@@ -50,13 +51,13 @@ and applies five actual first-parent changes through captured tip
 `8d4c424b1998c6f09e8700495db68bf9fabeff44`. Each run passed 96 tests with one
 skipped; the test task executed after each dependency change.
 
-| Change | Original source | Full job | Run |
-| --- | --- | ---: | --- |
-| JUnit Jupiter 6.1.2 to 6.1.3 | `cb160fa1b5fd22781289524d802c99ee8fc96f07` | 8m28s | [34254683488](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34254683488) |
-| Dependency analysis 3.16.0 to 3.18.0 | `03748df290850c7c20b7611a4086b2b9332e6954` | 8m52s | [34256150545](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34256150545) |
-| Hiero conventions 0.7.10 to 0.7.11 | `4c309297a1d869efc9e81c35c25ed8274ff95ffb` | 9m05s | [34257087392](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34257087392) |
-| Gradlex module dependencies 1.12.2 to 1.13.2 | `4b86b308bec9835a4a0815a05ed0dbd187eb52c7` | 9m39s | [34258096927](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34258096927) |
-| Spotless 8.10.0 to 8.10.1 | `8d4c424b1998c6f09e8700495db68bf9fabeff44` | 10m15s | [34259067592](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34259067592) |
+|                    Change                    |              Original source               | Full job |                                               Run                                               |
+|----------------------------------------------|--------------------------------------------|---------:|-------------------------------------------------------------------------------------------------|
+| JUnit Jupiter 6.1.2 to 6.1.3                 | `cb160fa1b5fd22781289524d802c99ee8fc96f07` |    8m28s | [34254683488](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34254683488) |
+| Dependency analysis 3.16.0 to 3.18.0         | `03748df290850c7c20b7611a4086b2b9332e6954` |    8m52s | [34256150545](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34256150545) |
+| Hiero conventions 0.7.10 to 0.7.11           | `4c309297a1d869efc9e81c35c25ed8274ff95ffb` |    9m05s | [34257087392](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34257087392) |
+| Gradlex module dependencies 1.12.2 to 1.13.2 | `4b86b308bec9835a4a0815a05ed0dbd187eb52c7` |    9m39s | [34258096927](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34258096927) |
+| Spotless 8.10.0 to 8.10.1                    | `8d4c424b1998c6f09e8700495db68bf9fabeff44` |   10m15s | [34259067592](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34259067592) |
 
 The final measured five-change head is
 `406cf8426496f282af4d65628e9445a02b51e5d7`. Its upstream files and modes match
