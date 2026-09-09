@@ -11,8 +11,12 @@ BoringCache for these jobs, with trusted cold/source-change writes and
 read-only warm jobs. No local task-cache directory is restored. The upstream
 source and its normal CI configuration remain intact.
 
-The current Action is One v1.21.0 at
-`90111526eb218a7f1e119ac2b29f765bd4d82734`, with CLI v1.21.0. Its
+The workflow pins One v1.30.0 at
+`a610ec5a564efd9b360925056dbade04deb5def6`, with its default CLI v1.30.0.
+The restore check for this release is pending.
+
+The earlier One v1.21.0 at `90111526eb218a7f1e119ac2b29f765bd4d82734`
+used CLI v1.21.0. Its
 [read-only release check](https://github.com/boringcache/hiero-gradle-conventions/actions/runs/34315445436)
 passed at validation commit `d7dbba4d6ba951ff71b0f4c264ba0d0bedcd5077`.
 `assemble check` took 61.97 seconds and the full job took 84 seconds. Both
